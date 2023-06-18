@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "mode": "module",
+  "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "start:guest": "node src/index.js -- --username=guest"
   },
   "repository": {
     "type": "git",
