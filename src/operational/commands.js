@@ -1,16 +1,12 @@
 import * as operations from './operations.js';
-import path from 'path';
-import * as url from 'url';
 
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-const homePath = path.join(__dirname, 'files');
 let userName = 'guest';
 
 const fileOperation = {
   help: commandsList,
   exit: exitFileManager,
-  //up: goUpper,
-  //cd: goToTheDir,
+  up: operations.goUpper,
+  cd: operations.goToTheDir,
   //ls: listFiles,
   //cat: readFileToConsole,
   add: operations.addEmptyFile,
@@ -28,13 +24,11 @@ async function listenCommands(name, data) {
   userName = name;
   const args = data.toString().split(' ');
   const command = args[0].trim();
-  if (command !== 'exit') console.log(`You are currently in ${homePath}\n`);
 
   if (command && Object.keys(fileOperation).includes(command)) {
     await fileOperation[command](args.slice(1));
   } else {
-    console.log('Unknown command\n');
-    //process.exit();
+    console.log('\nUnknown command\nType "help" for full commands list\n');
   }
 }
 
@@ -60,6 +54,6 @@ function commandsList() {
 }
 
 export function exitFileManager() {
-  console.log(`Thank you for using File Manager, ${userName}, goodbye!\n`);
+  console.log(`----------------\nThank you for using File Manager, ${userName}, goodbye!\n`);
   process.exit();
 }
