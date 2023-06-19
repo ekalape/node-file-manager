@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import path from 'path';
+import { stdout } from 'node:process';
 import * as url from 'url';
 import { resolvePath } from './utils.js';
 
@@ -63,4 +64,36 @@ export function goUpper() {
     homePath = destPath;
   }
   alertHomeDir();
+}
+export async function listFiles() {
+  try {
+    const dir = await fsPromises.readdir(homePath, { withFileTypes: true });
+    const content = [];
+    dir.forEach((x) => {
+      if (x.isDirectory()) content.push([x.name, 'directory']);
+      else content.push([x.name, 'file']);
+    });
+    console.table(content);
+  } catch (err) {
+    console.log("This directory doesn't exist");
+  }
+}
+
+export async function readFileToConsole(data) {
+  if (data[0] && data[0].trim().length > 0) {
+    const destPath = resolvePath(data[0].trim(), homePath);
+    try {
+      const stream = fs.createReadStream(destPath, { encoding: 'utf-8' });
+      stream.on('data', (data) => {
+        console.log(
+          `\nReading file '${path.parse(destPath).name + path.parse(destPath).ext}':\n-------`,
+        );
+        console.log(data);
+        console.log('-------');
+        alertHomeDir();
+      });
+    } catch (err) {
+      console.log("File doesn't exist");
+    }
+  } else console.log("You didn't enter any path!");
 }
