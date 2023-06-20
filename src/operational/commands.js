@@ -29,7 +29,7 @@ async function listenCommands(name, data) {
   if (command && Object.keys(fileOperation).includes(command)) {
     await fileOperation[command](args.slice(1));
   } else {
-    console.log('\nUnknown command\nType "help" for full commands list\n');
+    console.log(`${EOL}Unknown command${EOL}Type "help" for full commands list${EOL}`);
   }
 }
 
@@ -55,6 +55,8 @@ function commandsList() {
 }
 
 export function exitFileManager() {
-  console.log(`----------------\nThank you for using File Manager, ${userName}, goodbye!\n`);
+  console.log(
+    `----------------${EOL}Thank you for using File Manager, ${userName}, goodbye!${EOL}`,
+  );
   process.exit();
 }

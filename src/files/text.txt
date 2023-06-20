@@ -1,1 +1,1 @@
-Hello from other/fff
+hello from the text.txt file
