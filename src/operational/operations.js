@@ -81,19 +81,65 @@ export async function listFiles() {
 
 export async function readFileToConsole(data) {
   if (data[0] && data[0].trim().length > 0) {
-    const destPath = resolvePath(data[0].trim(), homePath);
     try {
+      const destPath = resolvePath(data[0].trim(), homePath);
       const stream = fs.createReadStream(destPath, { encoding: 'utf-8' });
       stream.on('data', (data) => {
-        console.log(
-          `\nReading file '${path.parse(destPath).name + path.parse(destPath).ext}':\n-------`,
-        );
+        console.log(`\nReading file '${path.basename(destPath)}':\n-------`);
         console.log(data);
         console.log('-------');
         alertHomeDir();
       });
+      stream.on('error', (err) => {
+        console.log("File doesn't exist");
+      });
     } catch (err) {
-      console.log("File doesn't exist");
+      console.log('Reading ERROR');
     }
   } else console.log("You didn't enter any path!");
+}
+
+export async function writeFile(filedata) {
+  if (!filedata[0] || !filedata[0].trim()) console.log('You have to specify file path!');
+  else if (!filedata[1] || !filedata[1].trim()) console.log('You have to add text content!');
+  else {
+    try {
+      const filePath = resolvePath(filedata[0].trim(), homePath);
+      await fsPromises.writeFile(filePath, filedata[1]);
+    } catch (err) {
+      console.log('Writing ERROR');
+    }
+  }
+  alertHomeDir();
+}
+
+export async function renameFile(filedata) {
+  if (!filedata[0] || !filedata[0].trim()) console.log('You have to specify file path!');
+  else if (!filedata[1] || !filedata[1].trim()) console.log('You have to specify new file name!');
+  else {
+    const oldFile = resolvePath(filedata[0].trim(), homePath);
+    const filePath = path.dirname(oldFile);
+    const newFile = path.join(filePath, data[1].trim());
+    try {
+      await fsPromises.rename(oldFile, newFile);
+      console.log(`\n${path.basename(oldFile)} is renamed to ${path.basename(newFile)}`);
+    } catch (err) {
+      console.log("The file doesn't exist");
+    }
+  }
+  alertHomeDir();
+}
+
+export async function deleteFile(data) {
+  if (!data[0] || !data[0].trim()) console.log('\nYou have to specify file path!');
+  else {
+    const filePath = resolvePath(data[0].trim(), homePath);
+    try {
+      await fsPromises.rm(filePath);
+      console.log(`\nDone`);
+    } catch (err) {
+      console.log("\nThe file doesn't exist");
+    }
+  }
+  alertHomeDir();
 }

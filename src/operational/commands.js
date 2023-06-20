@@ -1,5 +1,5 @@
 import * as operations from './operations.js';
-
+import * as fs from 'node:fs';
 let userName = 'guest';
 
 const fileOperation = {
@@ -10,10 +10,11 @@ const fileOperation = {
   ls: operations.listFiles,
   cat: operations.readFileToConsole,
   add: operations.addEmptyFile,
-  //rn: operations.renameFile,
+  write: operations.writeFile,
+  rn: operations.renameFile,
   //cp: operations.copyFile,
   //mv: operations.moveFile,
-  //rm: operations.deleteFile,
+  rm: operations.deleteFile,
   //hash: operations.hashFile,
   //compress: operations.compressFile,
   //decompress: operations.decompressFile,
