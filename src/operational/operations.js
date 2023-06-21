@@ -156,3 +156,40 @@ export async function deleteFile(data) {
   }
   alertHomeDir();
 }
+export async function copyFile(data) {
+  if (!data[0] || !data[0].trim())
+    console.log(`${EOL}You have to specify old file path and new file path!`);
+  else if (!data[1] || !data[1].trim()) console.log(`${EOL}You have to specify new file path!`);
+  else {
+    const oldFileDest = resolvePath(data[0].trim(), homePath);
+    const newFileDest = resolvePath(data[1].trim(), homePath);
+    try {
+      await fsPromises
+        .access(oldFileDest, fsPromises.constants.R_OK | fsPromises.constants.W_OK)
+        .catch((err) => {
+          throw Error(`${EOL}You are trying to copy unexistent file!${EOL}`);
+        });
+      await fsPromises
+        .access(newFileDest, fsPromises.constants.R_OK | fsPromises.constants.W_OK)
+        .catch(async (err) => {
+          if (err) {
+            const dir = path.dirname(newFileDest);
+            createDir([dir]);
+            await fsPromises.copyFile(oldFileDest, newFileDest);
+            throw Error(`${EOL}Done`);
+          }
+        });
+      console.log(`${EOL}Destination file already exists`);
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+  alertHomeDir();
+}
+
+export function createDir(data) {
+  const dirPath = resolvePath(data[0].trim(), homePath);
+  fs.mkdir(dirPath, { recursive: true }, (err) => {
+    if (err) console.log('Directory creation error');
+  });
+}
