@@ -15,24 +15,31 @@ function alertHomeDir() {
 }
 
 export async function addEmptyFile(data) {
-  const fileName = data[0].trim();
-  try {
-    if (data.length === 0) throw Error('Please, add file name to create');
-    const destination = path.join(homePath, fileName);
-    fs.open(destination, 'wx', (err) => {
-      if (err) console.log('This file name exists already');
-      else {
-        fs.writeFile(destination, '', (err) => {
-          if (err) throw Error('Writing operation failed');
-        });
-        console.log(`${fileName} file is created succesfully!`);
-      }
-    });
-  } catch (err) {
-    console.log(err.message);
-  } finally {
-    alertHomeDir();
-  }
+  if (data[0] && data[0].trim().length > 0) {
+    const fileName = data[0].trim();
+    try {
+      if (data.length === 0) throw Error('Please, add file name to create');
+      const destination = path.resolve(homePath, fileName);
+
+      fs.open(destination, 'wx', (err) => {
+        if (err) {
+          if (err.code === 'EEXIST') console.log('This file name exists already');
+          else if (err.code === 'ENOENT')
+            console.log('You are trying to create a file in unexistent directory');
+          else throw Error();
+        } else {
+          console.error('cannot access 2');
+          fs.writeFile(destination, '', (err) => {
+            if (err) throw Error('Writing operation failed');
+          });
+          console.log(`${fileName} file is created succesfully!`);
+        }
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+  } else console.log('You have to enter a file name');
+  alertHomeDir();
 }
 
 export async function goToTheDir(data) {
@@ -108,8 +115,11 @@ export async function writeFile(filedata) {
       const filePath = resolvePath(filedata[0].trim(), homePath);
       const text = filedata.slice(1).join(' ') + EOL;
       await fsPromises.appendFile(filePath, text, { encoding: 'utf-8' });
+      console.log(`${EOL}Done`);
     } catch (err) {
-      console.log('Writing ERROR');
+      if (err.code === 'ENOENT')
+        console.log('You are trying to create a file in unexistent directory');
+      else console.log('Writing ERROR');
     }
   }
   alertHomeDir();

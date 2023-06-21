@@ -1,4 +1,5 @@
 import * as operations from './operations.js';
+import { EOL } from 'os';
 import * as fs from 'node:fs';
 let userName = 'guest';
 
@@ -40,7 +41,7 @@ function commandsList() {
     ['up', 'go upper from current directory', 'up'],
     ['cd', 'go to dedicated folder from current directory', 'cd path_to_directory'],
     ['ls', 'print list of all files and folders in current directory', 'ls'],
-    ['add', 'add an empty file to the working directory', 'add path_to_folder'],
+    ['add', 'add an empty file to the working directory', 'add new_file_name'],
     ['cat', 'read a file', 'cat path_to_file'],
     ['rn', 'rename a file ', 'rn path_to_file new_filename'],
     ['cp', 'copy a file ', 'cp path_to_file path_to_new_directory'],
