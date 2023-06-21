@@ -28,7 +28,6 @@ export async function addEmptyFile(data) {
             console.log('You are trying to create a file in unexistent directory');
           else throw Error();
         } else {
-          console.error('cannot access 2');
           fs.writeFile(destination, '', (err) => {
             if (err) throw Error('Writing operation failed');
           });
@@ -156,18 +155,37 @@ export async function deleteFile(data) {
   }
   alertHomeDir();
 }
+
 export async function copyFile(data) {
+  await copyOrMove(data, 'copy');
+}
+
+export async function moveFile(data) {
+  await copyOrMove(data, 'move');
+}
+
+export function createDir(data) {
+  const dirPath = resolvePath(data[0].trim(), homePath);
+  fs.mkdir(dirPath, { recursive: true }, (err) => {
+    if (err) console.log('Directory creation error');
+  });
+}
+async function copyOrMove(data, action) {
   if (!data[0] || !data[0].trim())
-    console.log(`${EOL}You have to specify old file path and new file path!`);
-  else if (!data[1] || !data[1].trim()) console.log(`${EOL}You have to specify new file path!`);
+    console.log(`${EOL}You have to specify old file path and new place for the file!`);
+  else if (!data[1] || !data[1].trim()) console.log(`${EOL}You have to specify new path!`);
   else {
     const oldFileDest = resolvePath(data[0].trim(), homePath);
-    const newFileDest = resolvePath(data[1].trim(), homePath);
+    const newFileDest = path.resolve(
+      resolvePath(data[1].trim(), homePath),
+      path.basename(oldFileDest),
+    );
+
     try {
       await fsPromises
         .access(oldFileDest, fsPromises.constants.R_OK | fsPromises.constants.W_OK)
         .catch((err) => {
-          throw Error(`${EOL}You are trying to copy unexistent file!${EOL}`);
+          throw Error(`${EOL}You are trying to ${action} unexistent file!${EOL}`);
         });
       await fsPromises
         .access(newFileDest, fsPromises.constants.R_OK | fsPromises.constants.W_OK)
@@ -176,6 +194,7 @@ export async function copyFile(data) {
             const dir = path.dirname(newFileDest);
             createDir([dir]);
             await fsPromises.copyFile(oldFileDest, newFileDest);
+            if (action === 'move') await fsPromises.rm(oldFileDest);
             throw Error(`${EOL}Done`);
           }
         });
@@ -185,11 +204,4 @@ export async function copyFile(data) {
     }
   }
   alertHomeDir();
-}
-
-export function createDir(data) {
-  const dirPath = resolvePath(data[0].trim(), homePath);
-  fs.mkdir(dirPath, { recursive: true }, (err) => {
-    if (err) console.log('Directory creation error');
-  });
 }
