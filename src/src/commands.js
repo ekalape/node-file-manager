@@ -1,38 +1,36 @@
-import * as operations from './operations.js';
 import { EOL } from 'os';
-import * as fs from 'node:fs';
-let userName = 'guest';
+import homeDir from './utils/homeDir.js';
+import userName from './utils/userName.js';
 
 const fileOperation = {
   help: commandsList,
   '.exit': exitFileManager,
-  up: operations.goUpper,
-  cd: operations.goToTheDir,
-  ls: operations.listFiles,
-  cat: operations.readFileToConsole,
-  add: operations.addEmptyFile,
-  write: operations.writeFile,
-  rn: operations.renameFile,
-  cp: operations.copyFile,
-  mv: operations.moveFile,
-  rm: operations.deleteFile,
-  hash: operations.hashFile,
-  compress: operations.compressFile,
-  decompress: operations.decompressFile,
+  up: (await import('./operations/goUpper.js')).default,
+  cd: (await import('./operations/goToTheDir.js')).default,
+  ls: (await import('./operations/listFiles.js')).default,
+  cat: (await import('./operations/readFileToConsole.js')).default,
+  add: (await import('./operations/addEmptyFile.js')).default,
+  write: (await import('./operations/writeFile.js')).default,
+  rn: (await import('./operations/renameFile.js')).default,
+  cp: (await import('./operations/multipleActions.js')).copyFile,
+  mv: (await import('./operations/multipleActions.js')).moveFile,
+  rm: (await import('./operations/deleteFile.js')).default,
+  hash: (await import('./operations/hashFile.js')).default,
+  compress: (await import('./operations/multipleActions.js')).compressFile,
+  decompress: (await import('./operations/multipleActions.js')).decompressFile,
   //os: systemOperations,
-  mkdir: operations.createDir,
+  mkdir: (await import('./operations/createDir.js')).default,
 };
 
-async function listenCommands(name, data) {
-  userName = name;
+async function listenCommands(data) {
   const args = data.toString().split(' ');
   const command = args[0].trim();
-
   if (command && Object.keys(fileOperation).includes(command)) {
     await fileOperation[command](args.slice(1));
   } else {
     console.log(`${EOL}Unknown command${EOL}Type "help" for full commands list${EOL}`);
   }
+  homeDir.alert();
 }
 
 export default listenCommands;
@@ -57,8 +55,6 @@ function commandsList() {
 }
 
 export function exitFileManager() {
-  console.log(
-    `----------------${EOL}Thank you for using File Manager, ${userName}, goodbye!${EOL}`,
-  );
+  userName.sayBye();
   process.exit();
 }
