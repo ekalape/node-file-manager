@@ -5,6 +5,8 @@ import { createHash } from 'crypto';
 import { EOL } from 'os';
 import * as url from 'url';
 import { resolvePath } from './utils.js';
+import { pipeline } from 'node:stream/promises';
+import { createBrotliCompress, createBrotliDecompress, constants } from 'node:zlib';
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 let homePath = path.join(__dirname, '..', 'files');
@@ -157,29 +159,33 @@ export async function deleteFile(data) {
 }
 
 export async function copyFile(data) {
-  await copyOrMove(data, 'copy');
+  await doubleAction(data, 'copy');
 }
 
 export async function moveFile(data) {
-  await copyOrMove(data, 'move');
+  await doubleAction(data, 'move');
 }
 
-export function createDir(data) {
+export async function createDir(data) {
   const dirPath = resolvePath(data[0].trim(), homePath);
-  fs.mkdir(dirPath, { recursive: true }, (err) => {
-    if (err) console.log('Directory creation error');
-  });
+  await fsPromises.mkdir(dirPath, { recursive: true });
 }
-async function copyOrMove(data, action) {
+async function doubleAction(data, action) {
   if (!data[0] || !data[0].trim())
     console.log(`${EOL}You have to specify old file path and new place for the file!`);
   else if (!data[1] || !data[1].trim()) console.log(`${EOL}You have to specify new path!`);
   else {
     const oldFileDest = resolvePath(data[0].trim(), homePath);
-    const newFileDest = path.resolve(
+    let newFileDest = path.resolve(
       resolvePath(data[1].trim(), homePath),
       path.basename(oldFileDest),
     );
+    if (action === 'compress') {
+      newFileDest += '.br';
+    }
+    if (action === 'decompress') {
+      newFileDest = newFileDest.replace('.br', '');
+    }
 
     try {
       await fsPromises
@@ -192,9 +198,21 @@ async function copyOrMove(data, action) {
         .catch(async (err) => {
           if (err) {
             const dir = path.dirname(newFileDest);
-            createDir([dir]);
-            await fsPromises.copyFile(oldFileDest, newFileDest);
+            await createDir([dir]);
+            if (action === 'move' || action === 'copy')
+              await fsPromises.copyFile(oldFileDest, newFileDest);
             if (action === 'move') await fsPromises.rm(oldFileDest);
+            if (action === 'compress' || action === 'decompress') {
+              const rStream = fs.createReadStream(oldFileDest);
+              const wStream = fs.createWriteStream(newFileDest);
+              const compressFile =
+                action === 'compress'
+                  ? createBrotliCompress({
+                      params: { [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT },
+                    })
+                  : createBrotliDecompress();
+              await pipeline(rStream, compressFile, wStream);
+            }
             throw Error(`${EOL}Done`);
           }
         });
@@ -222,4 +240,11 @@ export async function hashFile(data) {
     }
   }
   alertHomeDir();
+}
+
+export async function compressFile(data) {
+  await doubleAction(data, 'compress');
+}
+export async function decompressFile(data) {
+  await doubleAction(data, 'decompress');
 }

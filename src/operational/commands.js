@@ -17,8 +17,8 @@ const fileOperation = {
   mv: operations.moveFile,
   rm: operations.deleteFile,
   hash: operations.hashFile,
-  //compress: operations.compressFile,
-  //decompress: operations.decompressFile,
+  compress: operations.compressFile,
+  decompress: operations.decompressFile,
   //os: systemOperations,
   mkdir: operations.createDir,
 };
