@@ -5,7 +5,7 @@ let userName = 'guest';
 
 const fileOperation = {
   help: commandsList,
-  exit: exitFileManager,
+  '.exit': exitFileManager,
   up: operations.goUpper,
   cd: operations.goToTheDir,
   ls: operations.listFiles,
@@ -51,7 +51,7 @@ function commandsList() {
     ['hash', 'calculate a hash for the file ', 'hash path_to_file'],
     ['compress', 'compress a file ', 'compress path_to_file path_to_destination'],
     ['decompress', 'decompress a file ', 'decompress path_to_file path_to_destination'],
-    ['exit', 'exit the file manager', 'exit or ctrl+C'],
+    ['.exit', 'exit the file manager', '.exit or ctrl+C'],
   ];
   console.table(helpList);
 }

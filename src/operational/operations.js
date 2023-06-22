@@ -4,19 +4,19 @@ import path from 'path';
 import { createHash } from 'crypto';
 import { EOL } from 'os';
 import * as url from 'url';
-import { resolvePath } from './utils.js';
+import { resolvePath } from './utils/resolvePath.js';
 import { pipeline } from 'node:stream/promises';
 import { createBrotliCompress, createBrotliDecompress, constants } from 'node:zlib';
 
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-let homePath = path.join(__dirname, '..', 'files');
-console.log(homePath);
+import homeDir from './utils/homeDir.js';
 
 function alertHomeDir() {
+  const homePath = homeDir.get();
   console.log(`You are currently in ${homePath}${EOL}`);
 }
 
 export async function addEmptyFile(data) {
+  let homePath = homeDir.get();
   if (data[0] && data[0].trim().length > 0) {
     const fileName = data[0].trim();
     try {
@@ -45,12 +45,12 @@ export async function addEmptyFile(data) {
 
 export async function goToTheDir(data) {
   if (data[0] && data[0].trim().length > 0) {
-    const destPath = resolvePath(data[0].trim(), homePath);
+    const destPath = resolvePath(data[0].trim());
     let dir;
     try {
       dir = await fsPromises.opendir(destPath);
       if (dir) {
-        homePath = destPath;
+        homeDir.set(destPath);
       } else {
         console.log(`This directory doesn't exist${EOL}`);
       }
@@ -66,15 +66,18 @@ export async function goToTheDir(data) {
 }
 
 export function goUpper() {
+  const homePath = homeDir.get();
   if (path.parse(homePath).root === path.parse(homePath).dir && path.parse(homePath).base === '') {
     console.log(`You cannot go any upper!`);
   } else {
     const destPath = path.resolve(homePath, '..');
-    homePath = destPath;
+    homeDir.set(destPath);
+    // homePath = destPath;
   }
   alertHomeDir();
 }
 export async function listFiles() {
+  let homePath = homeDir.get();
   try {
     const dir = await fsPromises.readdir(homePath, { withFileTypes: true });
     const content = [];
@@ -86,12 +89,13 @@ export async function listFiles() {
   } catch (err) {
     console.log(`${EOL}This directory doesn't exist`);
   }
+  alertHomeDir();
 }
 
 export async function readFileToConsole(data) {
   if (data[0] && data[0].trim().length > 0) {
     try {
-      const destPath = resolvePath(data[0].trim(), homePath);
+      const destPath = resolvePath(data[0].trim());
       const stream = fs.createReadStream(destPath, { encoding: 'utf-8' });
       stream.on('data', (data) => {
         console.log(`${EOL}Reading file '${path.basename(destPath)}':${EOL}-------`);
@@ -113,7 +117,7 @@ export async function writeFile(filedata) {
   else if (!filedata[1] || !filedata[1].trim()) console.log(`${EOL}You have to add text content!`);
   else {
     try {
-      const filePath = resolvePath(filedata[0].trim(), homePath);
+      const filePath = resolvePath(filedata[0].trim());
       const text = filedata.slice(1).join(' ') + EOL;
       await fsPromises.appendFile(filePath, text, { encoding: 'utf-8' });
       console.log(`${EOL}Done`);
@@ -131,7 +135,7 @@ export async function renameFile(filedata) {
   else if (!filedata[1] || !filedata[1].trim())
     console.log(`${EOL}You have to specify new file name!`);
   else {
-    const oldFile = resolvePath(filedata[0].trim(), homePath);
+    const oldFile = resolvePath(filedata[0].trim());
     const filePath = path.dirname(oldFile);
     const newFile = path.join(filePath, filedata[1].trim());
     try {
@@ -147,7 +151,7 @@ export async function renameFile(filedata) {
 export async function deleteFile(data) {
   if (!data[0] || !data[0].trim()) console.log(`${EOL}You have to specify file path!`);
   else {
-    const filePath = resolvePath(data[0].trim(), homePath);
+    const filePath = resolvePath(data[0].trim());
     try {
       await fsPromises.rm(filePath);
       console.log(`${EOL}Done`);
@@ -158,16 +162,8 @@ export async function deleteFile(data) {
   alertHomeDir();
 }
 
-export async function copyFile(data) {
-  await doubleAction(data, 'copy');
-}
-
-export async function moveFile(data) {
-  await doubleAction(data, 'move');
-}
-
 export async function createDir(data) {
-  const dirPath = resolvePath(data[0].trim(), homePath);
+  const dirPath = resolvePath(data[0].trim());
   await fsPromises.mkdir(dirPath, { recursive: true });
 }
 async function doubleAction(data, action) {
@@ -175,11 +171,8 @@ async function doubleAction(data, action) {
     console.log(`${EOL}You have to specify old file path and new place for the file!`);
   else if (!data[1] || !data[1].trim()) console.log(`${EOL}You have to specify new path!`);
   else {
-    const oldFileDest = resolvePath(data[0].trim(), homePath);
-    let newFileDest = path.resolve(
-      resolvePath(data[1].trim(), homePath),
-      path.basename(oldFileDest),
-    );
+    const oldFileDest = resolvePath(data[0].trim());
+    let newFileDest = path.resolve(resolvePath(data[1].trim()), path.basename(oldFileDest));
     if (action === 'compress') {
       newFileDest += '.br';
     }
@@ -227,7 +220,7 @@ async function doubleAction(data, action) {
 export async function hashFile(data) {
   if (!data[0] || !data[0].trim()) console.log(`${EOL}You have to specify file path!`);
   else {
-    const filePath = resolvePath(data[0].trim(), homePath);
+    const filePath = resolvePath(data[0].trim());
     try {
       const fileContent = await fsPromises.readFile(filePath, { encoding: 'utf8' });
 
@@ -240,6 +233,14 @@ export async function hashFile(data) {
     }
   }
   alertHomeDir();
+}
+
+export async function copyFile(data) {
+  await doubleAction(data, 'copy');
+}
+
+export async function moveFile(data) {
+  await doubleAction(data, 'move');
 }
 
 export async function compressFile(data) {

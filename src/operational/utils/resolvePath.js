@@ -1,7 +1,9 @@
 import path from 'path';
+import homeDir from './homeDir.js';
 
-export function resolvePath(destPath, homePath) {
-  let destination = homePath;
+export function resolvePath(destPath) {
+  const homePath = homeDir.get();
+  let destination = '';
   if (!path.isAbsolute(destPath)) {
     destination = path.resolve(homePath, destPath);
   } else {
