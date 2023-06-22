@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import path from 'path';
-import { stdout } from 'node:process';
+import { createHash } from 'crypto';
 import { EOL } from 'os';
 import * as url from 'url';
 import { resolvePath } from './utils.js';
@@ -201,6 +201,24 @@ async function copyOrMove(data, action) {
       console.log(`${EOL}Destination file already exists`);
     } catch (err) {
       console.log(err.message);
+    }
+  }
+  alertHomeDir();
+}
+
+export async function hashFile(data) {
+  if (!data[0] || !data[0].trim()) console.log(`${EOL}You have to specify file path!`);
+  else {
+    const filePath = resolvePath(data[0].trim(), homePath);
+    try {
+      const fileContent = await fsPromises.readFile(filePath, { encoding: 'utf8' });
+
+      const hash = createHash('sha256').update(fileContent, 'utf8').digest('hex');
+
+      console.log(`For the file ${path.basename(filePath)} hash is ${hash}`);
+    } catch (err) {
+      if (err.code === 'ENOENT') console.log(`${EOL}The file doesn't exist`);
+      else console.log(err.message);
     }
   }
   alertHomeDir();

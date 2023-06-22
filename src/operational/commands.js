@@ -16,7 +16,7 @@ const fileOperation = {
   cp: operations.copyFile,
   mv: operations.moveFile,
   rm: operations.deleteFile,
-  //hash: operations.hashFile,
+  hash: operations.hashFile,
   //compress: operations.compressFile,
   //decompress: operations.decompressFile,
   //os: systemOperations,
