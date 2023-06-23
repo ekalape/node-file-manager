@@ -1,4 +1,5 @@
 import * as os from 'node:os';
+import HelpIndications from '../utils/HelpIndications.js';
 
 export default function systemOperations(data) {
   if (data[0] && data[0].trim()) {
@@ -41,10 +42,14 @@ export default function systemOperations(data) {
 }
 
 const helpCommands = [
-  ['--EOL', 'display system EOL(default End-Of-Line)'],
-  ['--cpus', 'display available logical cpus models and their clock rate '],
-  ['--homedir', 'display home directory'],
-  ['--username', 'display current system user name'],
-  ['--architecture', 'display CPU architecture'],
-  ['--help', 'display available os commands'],
+  new HelpIndications('--EOL', 'display system EOL(default End-Of-Line)', 'os --EOL'),
+  new HelpIndications(
+    '--cpus',
+    'display available logical cpus models and their clock rate ',
+    'os --cpus',
+  ),
+  new HelpIndications('--homedir', 'display home directory', 'os --homedir'),
+  new HelpIndications('--username', 'display current system user name', 'os --username'),
+  new HelpIndications('--architecture', 'display CPU architecture', 'os --architecture'),
+  new HelpIndications('--help', 'display available os commands', 'os --help'),
 ];
