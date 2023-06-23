@@ -18,7 +18,7 @@ const fileOperation = {
   hash: (await import('./operations/hashFile.js')).default,
   compress: (await import('./operations/multipleActions.js')).compressFile,
   decompress: (await import('./operations/multipleActions.js')).decompressFile,
-  //os: systemOperations,
+  os: (await import('./operations/systemOperations.js')).default,
   mkdir: (await import('./operations/createDir.js')).default,
 };
 
@@ -49,6 +49,7 @@ function commandsList() {
     ['hash', 'calculate a hash for the file ', 'hash path_to_file'],
     ['compress', 'compress a file ', 'compress path_to_file path_to_destination'],
     ['decompress', 'decompress a file ', 'decompress path_to_file path_to_destination'],
+    ['os', 'os commands ', 'os --os_command'],
     ['.exit', 'exit the file manager', '.exit or ctrl+C'],
   ];
   console.table(helpList);
