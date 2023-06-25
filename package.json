@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "start:guest": "node src/index.js -- --username=guest",
-    "test": "node src/operational/utils.js"
+    "start:guest": "node src/index.js -- --username=guest"
   },
   "repository": {
     "type": "git",
