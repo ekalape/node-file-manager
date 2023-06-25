@@ -1,4 +1,4 @@
-import * as fsPromises from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { EOL } from 'os';
 import path from 'path';
 import { resolvePath } from '../utils/resolvePath.js';
@@ -9,7 +9,7 @@ export default async function hashFile(data) {
   else {
     const filePath = resolvePath(data[0].trim());
     try {
-      const fileContent = await fsPromises.readFile(filePath, { encoding: 'utf8' });
+      const fileContent = await readFile(filePath, { encoding: 'utf8' });
       const hash = createHash('sha256').update(fileContent, 'utf8').digest('hex');
 
       console.log(`For the file ${path.basename(filePath)} hash is ${hash}`);

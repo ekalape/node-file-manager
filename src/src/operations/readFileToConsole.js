@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import { createReadStream } from 'node:fs';
 import { EOL } from 'os';
 import path from 'path';
 import { resolvePath } from '../utils/resolvePath.js';
@@ -7,7 +7,7 @@ export default async function readFileToConsole(data) {
   if (data[0] && data[0].trim().length > 0) {
     try {
       const destPath = resolvePath(data[0].trim());
-      const stream = fs.createReadStream(destPath, { encoding: 'utf-8' });
+      const stream = createReadStream(destPath, { encoding: 'utf-8' });
       stream.on('data', (data) => {
         console.log(`${EOL}Reading file '${path.basename(destPath)}':${EOL}-------`);
         console.log(data);

@@ -1,11 +1,11 @@
 import homeDir from '../utils/homeDir.js';
 import { EOL } from 'os';
-import * as fsPromises from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 
 export default async function listFiles() {
   let homePath = homeDir.get();
   try {
-    const dir = await fsPromises.readdir(homePath, { withFileTypes: true });
+    const dir = await readdir(homePath, { withFileTypes: true });
     const content = [];
     dir.forEach((x) => {
       if (x.isDirectory()) content.push([x.name, 'directory']);

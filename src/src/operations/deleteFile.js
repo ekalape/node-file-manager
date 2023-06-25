@@ -1,4 +1,4 @@
-import * as fsPromises from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { EOL } from 'os';
 import { resolvePath } from '../utils/resolvePath.js';
 
@@ -7,7 +7,7 @@ export default async function deleteFile(data) {
   else {
     const filePath = resolvePath(data[0].trim());
     try {
-      await fsPromises.rm(filePath);
+      await rm(filePath);
       console.log(`${EOL}Done`);
     } catch (err) {
       console.log(`${EOL}The file doesn't exist`);

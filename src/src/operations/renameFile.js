@@ -1,4 +1,4 @@
-import * as fsPromises from 'node:fs/promises';
+import { rename } from 'node:fs/promises';
 import { EOL } from 'os';
 import path from 'path';
 import { resolvePath } from '../utils/resolvePath.js';
@@ -12,7 +12,7 @@ export default async function renameFile(filedata) {
     const filePath = path.dirname(oldFile);
     const newFile = path.join(filePath, filedata[1].trim());
     try {
-      await fsPromises.rename(oldFile, newFile);
+      await rename(oldFile, newFile);
       console.log(`${EOL}${path.basename(oldFile)} is renamed to ${path.basename(newFile)}`);
     } catch (err) {
       console.log(`${EOL}The file doesn't exist`);

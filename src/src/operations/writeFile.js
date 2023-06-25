@@ -1,4 +1,4 @@
-import * as fsPromises from 'node:fs/promises';
+import { appendFile } from 'node:fs/promises';
 import { EOL } from 'os';
 import { resolvePath } from '../utils/resolvePath.js';
 
@@ -9,7 +9,7 @@ export default async function writeFile(filedata) {
     try {
       const filePath = resolvePath(filedata[0].trim());
       const text = filedata.slice(1).join(' ') + EOL;
-      await fsPromises.appendFile(filePath, text, { encoding: 'utf-8' });
+      await appendFile(filePath, text, { encoding: 'utf-8' });
       console.log(`${EOL}Done`);
     } catch (err) {
       if (err.code === 'ENOENT')

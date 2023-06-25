@@ -1,14 +1,14 @@
 import homeDir from '../utils/homeDir.js';
 import { resolvePath } from '../utils/resolvePath.js';
 import { EOL } from 'os';
-import * as fsPromises from 'node:fs/promises';
+import {opendir} from 'node:fs/promises';
 
 export default async function goToTheDir(data) {
   if (data[0] && data[0].trim().length > 0) {
     const destPath = resolvePath(data[0].trim());
     let dir;
     try {
-      dir = await fsPromises.opendir(destPath);
+      dir = await opendir(destPath);
       if (dir) {
         homeDir.set(destPath);
       } else {
