@@ -15,7 +15,7 @@ export default async function addEmptyFile(data) {
           if (err.code === 'EEXIST') console.log('This file name exists already');
           else if (err.code === 'ENOENT')
             console.log('You are trying to create a file in unexistent directory');
-          else throw Error();
+          else console.log(err.message);
         } else {
           fs.writeFile(destination, '', (err) => {
             if (err) throw Error('Writing operation failed');

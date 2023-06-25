@@ -13,6 +13,7 @@ export default function systemOperations(data) {
           break;
         case 'cpus':
           const cps = os.cpus().map((x) => x.model.split(' @ '));
+          console.log(`Overall amount of CPUS is ${os.cpus().length} `);
           console.table(cps);
           break;
         case 'homedir':
