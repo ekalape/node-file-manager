@@ -24,7 +24,10 @@ const fileOperation = {
 };
 
 async function listenCommands(data) {
-  const args = data.toString().split(' ');
+  const args = data
+    .split(/ (?=(?:(?:(?:[^'"]*['"]){2})*[^'"]*$))/)
+    .map((arg) => arg.replace(/(^['"]|['"]$)/g, ''));
+
   const command = args[0].trim();
   if (command && Object.keys(fileOperation).includes(command)) {
     await fileOperation[command](args.slice(1));
