@@ -1,0 +1,17 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:guest": "node src/index.js -- --username=guest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ekalape/node-file-manager.git"
+  },
+  "author": "Ekalape",
+  "license": "ISC"
+}
